@@ -4,34 +4,47 @@ const axios = require("axios");
 const FormData = require("form-data");
 const fs = require("fs");
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
 app.use(cors());
 
 const upload = multer({ dest: "uploads/" });
 
-app.post("/convert/img-to-pdf", upload.single("file"), async (req, res) => {
+/**
+ * Accept multiple files (field name: 'files') and optional quality query param.
+ * Forwards them to Python microservice at /imgs-to-pdf and streams back the combined PDF.
+ */
+app.post("/convert/imgs-to-pdf", upload.array("files"), async (req, res) => {
   try {
-    const formData = new FormData();
-    const fileStream = fs.createReadStream(req.file.path);
+    const quality = req.query.quality || 85;
+    const form = new FormData();
 
-    formData.append("file", fileStream);
+    // append each file stream to form
+    req.files.forEach((f) => {
+      form.append("files", fs.createReadStream(path.resolve(f.path)), f.originalname);
+    });
 
-    const response = await axios.post(
-      "http://localhost:8000/img-to-pdf",
-      formData,
-      { headers: formData.getHeaders(), responseType: "stream" }
-    );
+    const response = await axios.post(`http://localhost:8000/imgs-to-pdf?quality=${quality}`, form, {
+      headers: form.getHeaders(),
+      responseType: "stream"
+    });
 
-    res.setHeader("Content-Disposition", "attachment; filename=converted.pdf");
-
+    res.setHeader("Content-Disposition", "attachment; filename=combined.pdf");
     response.data.pipe(res);
-  } catch (error) {
-    console.error(error);
+
+    // optional: cleanup uploaded temp files after stream ends
+    response.data.on("end", () => {
+      req.files.forEach((f) => {
+        fs.unlink(f.path, () => {});
+      });
+    });
+
+  } catch (err) {
+    console.error("Error in /convert/imgs-to-pdf:", err.message || err);
     res.status(500).send("Conversion failed");
   }
 });
 
-app.listen(5000, () => {
-  console.log("Node server running on http://localhost:5000");
-});
+app.listen(5000, () => console.log("Node server running on http://localhost:5000"));
+
