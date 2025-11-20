@@ -65,3 +65,5 @@ async def imgs_to_pdf(files: List[UploadFile] = File(...), quality: Optional[int
 
     # return as streaming response
     return FileResponse(out_path, media_type="application/pdf", filename="combined.pdf")
+
+
