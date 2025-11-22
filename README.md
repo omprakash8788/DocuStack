@@ -23,6 +23,7 @@ A hybrid **MERN + Python microservice** application that allows users to easily 
 
 ---
 <img width="1145" height="637" alt="image" src="https://github.com/user-attachments/assets/d77673fe-efac-4fec-9454-a873644a9333" />
+
 ---
 
 ## 🏗️ Tech Stack
