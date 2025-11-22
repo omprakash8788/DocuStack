@@ -1,3 +1,6 @@
+from pdf2docx import Converter
+from docx2pdf import convert as docx2pdf_convert
+import shutil
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import StreamingResponse, FileResponse
 from typing import List, Optional
@@ -66,4 +69,49 @@ async def imgs_to_pdf(files: List[UploadFile] = File(...), quality: Optional[int
     # return as streaming response
     return FileResponse(out_path, media_type="application/pdf", filename="combined.pdf")
 
+@app.post("/pdf-to-word")
+async def pdf_to_word(file: UploadFile = File(...)):
+    filename = f"{uuid.uuid4()}_{file.filename}"
+    pdf_path = os.path.join(UPLOAD_DIR, filename)
 
+    with open(pdf_path, "wb") as f:
+        f.write(await file.read())
+
+    docx_filename = filename.replace(".pdf", ".docx")
+    docx_path = os.path.join(OUTPUT_DIR, docx_filename)
+
+    try:
+        cv = Converter(pdf_path)
+        cv.convert(docx_path)
+        cv.close()
+    except Exception as e:
+        return {"error": str(e)}
+
+    return FileResponse(
+        docx_path,
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        filename="converted.docx"
+    )
+
+
+@app.post("/word-to-pdf")
+async def word_to_pdf(file: UploadFile = File(...)):
+    filename = f"{uuid.uuid4()}_{file.filename}"
+    docx_path = os.path.join(UPLOAD_DIR, filename)
+
+    with open(docx_path, "wb") as f:
+        f.write(await file.read())
+
+    pdf_filename = filename.replace(".docx", ".pdf")
+    pdf_path = os.path.join(OUTPUT_DIR, pdf_filename)
+
+    try:
+        docx2pdf_convert(docx_path, pdf_path)
+    except Exception as e:
+        return {"error": str(e)}
+
+    return FileResponse(
+        pdf_path,
+        media_type="application/pdf",
+        filename="converted.pdf"
+    )
