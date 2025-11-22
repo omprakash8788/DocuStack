@@ -111,4 +111,9 @@ Upload files → download converted files instantly
 ``
 
 
+``
+**Note:** No database is used to store your documents, so your files are not saved permanently.
+``
+
+
 
