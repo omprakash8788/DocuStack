@@ -91,42 +91,6 @@ app.post("/convert/pdf-to-word", upload.single("file"), async (req, res) => {
 /**
  * WORD → PDF
  */
-// app.post("/convert/word-to-pdf", upload.single("file"), async (req, res) => {
-//   try {
-//     const form = new FormData();
-
-//     form.append(
-//       "file",
-//       fs.createReadStream(path.resolve(req.file.path)),
-//       req.file.originalname
-//     );
-
-//     const response = await axios.post(
-//       "http://localhost:8000/word-to-pdf",
-//       form,
-//       {
-//         headers: form.getHeaders(),
-//         responseType: "stream"
-//       }
-//     );
-
-//     res.setHeader(
-//       "Content-Disposition",
-//       "attachment; filename=converted.pdf"
-//     );
-
-//     response.data.pipe(res);
-
-//     response.data.on("end", () => {
-//       fs.unlink(req.file.path, () => {});
-//     });
-
-//   } catch (error) {
-//     console.error("Word → PDF Error:", error.message);
-//     res.status(500).send("Conversion failed");
-//   }
-// });
-
 app.post("/convert/word-to-pdf", upload.single("file"), async (req, res) => {
   try {
     const form = new FormData();
@@ -149,7 +113,7 @@ app.post("/convert/word-to-pdf", upload.single("file"), async (req, res) => {
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename="converted.pdf"`);
 
-    // ✅ SAFER pipeline
+    // SAFER pipeline
     await pump(response.data, res);
 
     fs.unlink(req.file.path, () => {});
@@ -159,9 +123,6 @@ app.post("/convert/word-to-pdf", upload.single("file"), async (req, res) => {
     res.status(500).send("Conversion failed");
   }
 });
-
-
-
 app.listen(5000, () => console.log("Node server running on http://localhost:5000"));
 
 
