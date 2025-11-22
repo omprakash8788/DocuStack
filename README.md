@@ -4,7 +4,13 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python Version](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
 [![Node Version](https://img.shields.io/badge/Node-20.x-green.svg)](https://nodejs.org/)
-
+[![React Version](https://img.shields.io/badge/React-18.x-blueviolet.svg)](https://reactjs.org/)
+[![Express Version](https://img.shields.io/badge/Express-4.x-lightgrey.svg)](https://expressjs.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-green.svg)](https://www.mongodb.com/)
+[![License: MIT](https://img.shields.io/badge/Frontend-React.js-orange.svg)](https://reactjs.org/)
+[![Backend-Node.js](https://img.shields.io/badge/Backend-Node.js-yellowgreen.svg)](https://nodejs.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
+[![VS Code](https://img.shields.io/badge/IDE-VS%20Code-blue.svg)](https://code.visualstudio.com/)
 
 
 A hybrid **MERN + Python microservice** application that allows users to easily convert between different file formats:
