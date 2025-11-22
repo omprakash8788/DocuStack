@@ -93,31 +93,6 @@ async def pdf_to_word(file: UploadFile = File(...)):
         filename="converted.docx"
     )
 
-
-# @app.post("/word-to-pdf")
-# async def word_to_pdf(file: UploadFile = File(...)):
-
-#     filename = f"{uuid.uuid4()}_{file.filename}"
-#     docx_path = os.path.join(UPLOAD_DIR, filename)
-
-#     with open(docx_path, "wb") as f:
-#         f.write(await file.read())
-
-#     pdf_filename = filename.replace(".docx", ".pdf")
-#     pdf_path = os.path.join(OUTPUT_DIR, pdf_filename)
-
-#     try:
-#         docx2pdf_convert(docx_path, pdf_path)
-#     except Exception as e:
-#         return {"error": str(e)}
-
-#     return FileResponse(
-#         pdf_path,
-#         media_type="application/pdf",
-#         filename="converted.pdf"
-#     )
-
-
 @app.post("/word-to-pdf")
 async def word_to_pdf(file: UploadFile = File(...)):
     filename = f"{uuid.uuid4()}_{file.filename}"
