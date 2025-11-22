@@ -45,7 +45,8 @@ A hybrid **MERN + Python microservice** application that allows users to easily 
 
 ## 📂 Project Structure
 
-`` 
+
+```bash
 DocuStack/
 │
 ├─ client/ # React frontend
@@ -58,7 +59,7 @@ DocuStack/
 ├─ server/ # Node/Express API for file upload & management
 │ ├─ routes/
 │ ├─ controllers/
-│ └─ index.js
+│ └─ server.js
 │
 ├─ python/ # Python conversion microservice
 │ ├─ app.py
