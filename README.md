@@ -22,6 +22,8 @@ A hybrid **MERN + Python microservice** application that allows users to easily 
 - **PDF → Images**
 
 ---
+<img width="1145" height="637" alt="image" src="https://github.com/user-attachments/assets/d77673fe-efac-4fec-9454-a873644a9333" />
+---
 
 ## 🏗️ Tech Stack
 
@@ -74,9 +76,6 @@ DocuStack/
 ## 🔌 API Endpoints
 
 ### Image → PDF (etc) --> If you want to know more about microservice go through the app.py files 
-
----
-<img width="1145" height="637" alt="image" src="https://github.com/user-attachments/assets/d77673fe-efac-4fec-9454-a873644a9333" />
 
 
 ---
