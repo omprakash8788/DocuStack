@@ -159,13 +159,13 @@ const App = () => {
           />
 
           {mode === "pdf-to-word" && (
-            <button onClick={handlePdfToWord}>
+            <button className="btn1" onClick={handlePdfToWord}>
               Convert PDF → Word
             </button>
           )}
 
           {mode === "word-to-pdf" && (
-            <button onClick={handleWordToPdf}>
+            <button className="btn1" onClick={handleWordToPdf}>
               Convert Word → PDF
             </button>
           )}
