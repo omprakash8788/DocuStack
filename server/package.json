@@ -1,14 +1,14 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "",
+  "description": "DocuState",
   "main": "server.js",
  "scripts": {
   "start": "nodemon server.js"
 },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["Microservice", "backend", "Production"],
+  "author": "omprkash kumar",
+  "license": "MIT",
   "type": "commonjs",
   "dependencies": {
     "axios": "^1.13.2",
