@@ -1,3 +1,4 @@
+import "../App.css"
 const ProgressBar = ({ progress }: { progress: number }) => (
   <div className="progress-box">
     <div className="progress-bar">

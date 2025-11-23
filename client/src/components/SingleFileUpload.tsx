@@ -1,3 +1,5 @@
+import "../App.css"
+
 interface Props {
   singleFile: File | null
   setSingleFile: (file: File) => void

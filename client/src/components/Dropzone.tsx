@@ -1,4 +1,6 @@
 import { RefObject } from "react"
+// import "./App.css"
+import "../App.css"
 
 interface DropzoneProps {
   dragOver: boolean

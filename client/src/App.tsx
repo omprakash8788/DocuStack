@@ -143,7 +143,7 @@ const App = () => {
             />
           </div>
 
-          <button onClick={handleConvert} disabled={loading}>
+          <button className="btn1" onClick={handleConvert} disabled={loading}>
             {loading ? "Converting..." : "Convert to PDF"}
           </button>
         </>
