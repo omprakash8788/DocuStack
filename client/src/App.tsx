@@ -1,11 +1,12 @@
 import React, { useRef, useState } from "react"
 import "./App.css"
-
+import { toast, ToastContainer} from 'react-toastify';
 import Tabs from "./components/Tabs"
 import Dropzone from "./components/Dropzone"
 import ImageList from "./components/ImageList"
 import SingleFileUpload from "./components/SingleFileUpload"
 import ProgressBar from "./components/ProgressBar"
+import 'react-toastify/dist/ReactToastify.css';
 
 import { useUploader } from "./hooks/useUploader"
 import {
@@ -49,7 +50,9 @@ const App = () => {
   }
 
   const handleConvert = async () => {
-    if (!files.length) return alert("Add at least one image")
+    if (!files.length){
+         return toast.warn("Add at least one image")
+    }
 
     const form = new FormData()
     files.forEach((f) => form.append("files", f))
@@ -69,7 +72,7 @@ const App = () => {
 
   const handlePdfToWord = async () => {
     if (!singleFile || !isPDF(singleFile))
-      return alert("Upload a valid PDF")
+      return toast.warning("Upload a valid PDF")
 
     const form = new FormData()
     form.append("file", singleFile)
@@ -85,7 +88,7 @@ const App = () => {
 
   const handleWordToPdf = async () => {
     if (!singleFile || !isDOCX(singleFile))
-      return alert("Upload a DOCX")
+      return toast.warning("Upload a DOCX")
 
     const form = new FormData()
     form.append("file", singleFile)
@@ -108,6 +111,7 @@ const App = () => {
 
   return (
     <div className="app">
+       <ToastContainer />
       <h1>Smart File Converter</h1>
 
       <Tabs mode={mode} setMode={setMode} />
