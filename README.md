@@ -11,6 +11,8 @@
 [![Backend-Node.js](https://img.shields.io/badge/Backend-Node.js-yellowgreen.svg)](https://nodejs.org/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 [![VS Code](https://img.shields.io/badge/IDE-VS%20Code-blue.svg)](https://code.visualstudio.com/)
+![Typing SVG](https://readme-typing-svg.herokuapp.com?size=25&color=00F7FF&width=700&lines=+File+Converter+Application;FastAPI+%7C+React+%7C+Node.js;Images+⇄+PDF+%7C+Word+→+PDF;Production+Ready+System)
+
 
 
 
