@@ -1,3 +1,4 @@
+import "../App.css"
 interface TabsProps {
   mode: string
   setMode: (v: string) => void

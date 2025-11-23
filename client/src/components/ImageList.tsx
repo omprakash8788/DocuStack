@@ -1,3 +1,4 @@
+import "../App.css"
 interface Props {
   files: File[]
   removeFile: (i: number) => void
