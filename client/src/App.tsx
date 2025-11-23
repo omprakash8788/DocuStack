@@ -1,31 +1,41 @@
-import React, { useState, useRef } from "react"
-import axios from "axios"
+import React, { useRef, useState } from "react"
 import "./App.css"
 
+import Tabs from "./components/Tabs"
+import Dropzone from "./components/Dropzone"
+import ImageList from "./components/ImageList"
+import SingleFileUpload from "./components/SingleFileUpload"
+import ProgressBar from "./components/ProgressBar"
 
-const App: React.FC = () => {
+import { useUploader } from "./hooks/useUploader"
+import {
+  isImage,
+  isPDF,
+  isDOCX,
+  downloadBlob,
+} from "./utils/fileHelpers"
+
+import {
+  convertImagesToPdf,
+  pdfToWord,
+  wordToPdf,
+} from "./services/convert.service"
+
+const App = () => {
   const [files, setFiles] = useState<File[]>([])
-  const [dragOver, setDragOver] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [progress, setProgress] = useState(0)
-  const [quality, setQuality] = useState(85)
   const [singleFile, setSingleFile] = useState<File | null>(null)
-
+  const [dragOver, setDragOver] = useState(false)
+  const [quality, setQuality] = useState(85)
   const [mode, setMode] = useState("img-to-pdf")
 
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
+  const { loading, progress, setLoading, setProgress } =
+    useUploader()
+
   const onFilesSelected = (fileList: FileList) => {
-    const arr = Array.from(fileList).filter((file) =>
-      file.type.startsWith("image/")
-    )
-
+    const arr = Array.from(fileList).filter(isImage)
     setFiles((prev) => [...prev, ...arr])
-  }
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return
-    onFilesSelected(e.target.files)
   }
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -38,127 +48,52 @@ const App: React.FC = () => {
     setFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
-  /* ------------ IMAGE → PDF ------------ */
   const handleConvert = async () => {
-    if (!files.length) {
-      alert("Add at least one image")
-      return
-    }
+    if (!files.length) return alert("Add at least one image")
 
     const form = new FormData()
-    files.forEach((file) => form.append("files", file))
+    files.forEach((f) => form.append("files", f))
 
     try {
       setLoading(true)
-      setProgress(0)
-
-      const res = await axios.post(
-        `http://localhost:5000/convert/imgs-to-pdf?quality=${quality}`,
+      const res = await convertImagesToPdf(
         form,
-        {
-          responseType: "blob",
-          onUploadProgress: (e) => {
-            if (e.total) {
-              setProgress(Math.round((e.loaded * 100) / e.total))
-            }
-          },
-        }
+        quality,
+        setProgress
       )
-
-      const blob = new Blob([res.data], { type: "application/pdf" })
-      const url = window.URL.createObjectURL(blob)
-
-      const a = document.createElement("a")
-      a.href = url
-      a.download = "combined.pdf"
-      a.click()
-    } catch (error) {
-      console.error(error)
-      alert("Conversion failed")
+      downloadBlob(res.data, "combined.pdf")
     } finally {
       setLoading(false)
     }
   }
 
-  /* ------------ PDF → WORD ------------ */
   const handlePdfToWord = async () => {
-    if (!singleFile || singleFile.type !== "application/pdf") {
-      alert("Upload a valid PDF")
-      return
-    }
+    if (!singleFile || !isPDF(singleFile))
+      return alert("Upload a valid PDF")
 
     const form = new FormData()
     form.append("file", singleFile)
 
     try {
       setLoading(true)
-      setProgress(0)
-
-      const res = await axios.post(
-        "http://localhost:5000/convert/pdf-to-word",
-        form,
-        {
-          responseType: "blob",
-          onUploadProgress: (e) => {
-            if (e.total) {
-              setProgress(Math.round((e.loaded * 100) / e.total))
-            }
-          },
-        }
-      )
-
-      const blob = new Blob([res.data])
-      const url = window.URL.createObjectURL(blob)
-
-      const a = document.createElement("a")
-      a.href = url
-      a.download = "converted.docx"
-      a.click()
-    } catch (err) {
-      console.error(err)
-      alert("PDF to Word failed")
+      const res = await pdfToWord(form, setProgress)
+      downloadBlob(res.data, "converted.docx")
     } finally {
       setLoading(false)
     }
   }
 
-  /* ------------ WORD → PDF ------------ */
   const handleWordToPdf = async () => {
-    if (!singleFile || !singleFile.name.endsWith(".docx")) {
-      alert("Upload a DOCX file")
-      return
-    }
+    if (!singleFile || !isDOCX(singleFile))
+      return alert("Upload a DOCX")
 
     const form = new FormData()
     form.append("file", singleFile)
 
     try {
       setLoading(true)
-      setProgress(0)
-
-      const res = await axios.post(
-        "http://localhost:5000/convert/word-to-pdf",
-        form,
-        {
-          responseType: "blob",
-          onUploadProgress: (e) => {
-            if (e.total) {
-              setProgress(Math.round((e.loaded * 100) / e.total))
-            }
-          },
-        }
-      )
-
-      const blob = new Blob([res.data])
-      const url = window.URL.createObjectURL(blob)
-
-      const a = document.createElement("a")
-      a.href = url
-      a.download = "converted.pdf"
-      a.click()
-    } catch (err) {
-      console.error(err)
-      alert("Word to PDF failed")
+      const res = await wordToPdf(form, setProgress)
+      downloadBlob(res.data, "converted.pdf")
     } finally {
       setLoading(false)
     }
@@ -175,70 +110,25 @@ const App: React.FC = () => {
     <div className="app">
       <h1>Smart File Converter</h1>
 
-      {/* -------- TABS -------- */}
-      <div className="tabs">
-        <button
-          className={mode === "img-to-pdf" ? "active" : ""}
-          onClick={() => setMode("img-to-pdf")}
-        >
-          Image → PDF
-        </button>
-        <button
-          className={mode === "pdf-to-word" ? "active" : ""}
-          onClick={() => setMode("pdf-to-word")}
-        >
-          PDF → Word
-        </button>
-        <button
-          className={mode === "word-to-pdf" ? "active" : ""}
-          onClick={() => setMode("word-to-pdf")}
-        >
-          Word → PDF
-        </button>
-      </div>
+      <Tabs mode={mode} setMode={setMode} />
 
-      {/* ---------------- IMAGE TO PDF ---------------- */}
       {mode === "img-to-pdf" && (
         <>
-          <div
-            className={`dropzone ${dragOver ? "over" : ""}`}
-            onDragOver={(e) => {
-              e.preventDefault()
-              setDragOver(true)
-            }}
-            onDragLeave={() => setDragOver(false)}
+          <Dropzone
+            dragOver={dragOver}
+            setDragOver={setDragOver}
             onDrop={handleDrop}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              accept="image/*"
-              style={{ display: "none" }}
-              onChange={handleInputChange}
-            />
-            <p>Drag & drop images or click to select</p>
-          </div>
+            onChange={(e) =>
+              e.target.files &&
+              onFilesSelected(e.target.files)
+            }
+            inputRef={fileInputRef}
+          />
 
-          {files.length > 0 && (
-            <div className="files">
-              <h3>Selected Images ({files.length})</h3>
-              <div className="thumbs">
-                {files.map((file, index) => (
-                  <div key={index} className="thumb">
-                    <img src={URL.createObjectURL(file)} alt={file.name} />
-                    <div className="meta">
-                      <small>{file.name}</small>
-                      <button onClick={() => removeFile(index)}>
-                        Remove
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          <ImageList
+            files={files}
+            removeFile={removeFile}
+          />
 
           <div className="controls">
             <label>Quality: {quality}</label>
@@ -247,35 +137,26 @@ const App: React.FC = () => {
               min="10"
               max="100"
               value={quality}
-              onChange={(e) => setQuality(Number(e.target.value))}
+              onChange={(e) =>
+                setQuality(Number(e.target.value))
+              }
             />
           </div>
 
-          <button className="convert-btn" onClick={handleConvert} disabled={loading}>
+          <button onClick={handleConvert} disabled={loading}>
             {loading ? "Converting..." : "Convert to PDF"}
           </button>
         </>
       )}
 
-      {/* ---------------- SINGLE FILE MODES ---------------- */}
-      {(mode === "pdf-to-word" || mode === "word-to-pdf") && (
-        <div className="single-file">
-          <input
-            type="file"
-            accept=".pdf,.docx"
-            onChange={(e) =>
-              e.target.files && setSingleFile(e.target.files[0])
-            }
+      {(mode === "pdf-to-word" ||
+        mode === "word-to-pdf") && (
+        <>
+          <SingleFileUpload
+            singleFile={singleFile}
+            setSingleFile={setSingleFile}
+            getFileIcon={getFileIcon}
           />
-
-          {singleFile && (
-            <div className="file-card">
-              <span className="file-icon">
-                {getFileIcon(singleFile)}
-              </span>
-              <span>{singleFile.name}</span>
-            </div>
-          )}
 
           {mode === "pdf-to-word" && (
             <button onClick={handlePdfToWord}>
@@ -288,24 +169,12 @@ const App: React.FC = () => {
               Convert Word → PDF
             </button>
           )}
-        </div>
+        </>
       )}
 
-      {/* -------- PROGRESS BAR -------- */}
-      {loading && (
-        <div className="progress-box">
-          <div className="progress-bar">
-            <div
-              className="progress-fill"
-              style={{ width: `${progress}%` }}
-            ></div>
-          </div>
-          <small>{progress}%</small>
-        </div>
-      )}
+      {loading && <ProgressBar progress={progress} />}
     </div>
   )
 }
 
 export default App
-
