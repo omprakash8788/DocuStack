@@ -22,6 +22,11 @@
   border: 1px solid black;
   margin-top: 10px;
 }
+.rbtn{
+  border: none;
+  cursor: pointer;
+  color: red;
+}
 .single-file input {
   padding: 10px 16px;
   border: none;

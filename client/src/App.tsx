@@ -1,117 +1,107 @@
-import React, { useRef, useState } from "react"
-import "./App.css"
-import { toast, ToastContainer} from 'react-toastify';
-import Tabs from "./components/Tabs"
-import Dropzone from "./components/Dropzone"
-import ImageList from "./components/ImageList"
-import SingleFileUpload from "./components/SingleFileUpload"
-import ProgressBar from "./components/ProgressBar"
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useRef, useState } from "react";
+import "./App.css";
+import { toast, ToastContainer } from "react-toastify";
+import Tabs from "./components/Tabs";
+import Dropzone from "./components/Dropzone";
+import ImageList from "./components/ImageList";
+import SingleFileUpload from "./components/SingleFileUpload";
+import ProgressBar from "./components/ProgressBar";
+import "react-toastify/dist/ReactToastify.css";
 
-import { useUploader } from "./hooks/useUploader"
-import {
-  isImage,
-  isPDF,
-  isDOCX,
-  downloadBlob,
-} from "./utils/fileHelpers"
+import { useUploader } from "./hooks/useUploader";
+import { isImage, isPDF, isDOCX, downloadBlob } from "./utils/fileHelpers";
 
 import {
   convertImagesToPdf,
   pdfToWord,
   wordToPdf,
-} from "./services/convert.service"
+} from "./services/convert.service";
 
 const App = () => {
-  const [files, setFiles] = useState<File[]>([])
-  const [singleFile, setSingleFile] = useState<File | null>(null)
-  const [dragOver, setDragOver] = useState(false)
-  const [quality, setQuality] = useState(85)
-  const [mode, setMode] = useState("img-to-pdf")
+  const [files, setFiles] = useState<File[]>([]);
+  const [singleFile, setSingleFile] = useState<File | null>(null);
+  const [dragOver, setDragOver] = useState(false);
+  const [quality, setQuality] = useState(85);
+  const [mode, setMode] = useState("img-to-pdf");
 
-  const fileInputRef = useRef<HTMLInputElement | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const { loading, progress, setLoading, setProgress } =
-    useUploader()
+  const { loading, progress, setLoading, setProgress } = useUploader();
 
   const onFilesSelected = (fileList: FileList) => {
-    const arr = Array.from(fileList).filter(isImage)
-    setFiles((prev) => [...prev, ...arr])
-  }
+    const arr = Array.from(fileList).filter(isImage);
+    setFiles((prev) => [...prev, ...arr]);
+  };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
-    setDragOver(false)
-    onFilesSelected(e.dataTransfer.files)
-  }
+    e.preventDefault();
+    setDragOver(false);
+    onFilesSelected(e.dataTransfer.files);
+  };
 
   const removeFile = (index: number) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index))
-  }
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const handleConvert = async () => {
-    if (!files.length){
-         return toast.warn("Add at least one image")
+    if (!files.length) {
+      return toast.warn("Add at least one image");
     }
 
-    const form = new FormData()
-    files.forEach((f) => form.append("files", f))
+    const form = new FormData();
+    files.forEach((f) => form.append("files", f));
 
     try {
-      setLoading(true)
-      const res = await convertImagesToPdf(
-        form,
-        quality,
-        setProgress
-      )
-      downloadBlob(res.data, "combined.pdf")
+      setLoading(true);
+      const res = await convertImagesToPdf(form, quality, setProgress);
+      downloadBlob(res.data, "combined.pdf");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handlePdfToWord = async () => {
     if (!singleFile || !isPDF(singleFile))
-      return toast.warning("Upload a valid PDF")
+      return toast.warning("Upload a valid PDF");
 
-    const form = new FormData()
-    form.append("file", singleFile)
+    const form = new FormData();
+    form.append("file", singleFile);
 
     try {
-      setLoading(true)
-      const res = await pdfToWord(form, setProgress)
-      downloadBlob(res.data, "converted.docx")
+      setLoading(true);
+      const res = await pdfToWord(form, setProgress);
+      downloadBlob(res.data, "converted.docx");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleWordToPdf = async () => {
     if (!singleFile || !isDOCX(singleFile))
-      return toast.warning("Upload a DOCX")
+      return toast.warning("Upload a DOCX");
 
-    const form = new FormData()
-    form.append("file", singleFile)
+    const form = new FormData();
+    form.append("file", singleFile);
 
     try {
-      setLoading(true)
-      const res = await wordToPdf(form, setProgress)
-      downloadBlob(res.data, "converted.pdf")
+      setLoading(true);
+      const res = await wordToPdf(form, setProgress);
+      downloadBlob(res.data, "converted.pdf");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const getFileIcon = (file: File) => {
-    if (file.type.includes("pdf")) return "📕"
-    if (file.type.includes("word")) return "📘"
-    if (file.type.includes("image")) return "🖼️"
-    return "📄"
-  }
+    if (file.type.includes("pdf")) return "📕";
+    if (file.type.includes("word")) return "📘";
+    if (file.type.includes("image")) return "🖼️";
+    return "📄";
+  };
 
   return (
     <div className="app">
-       <ToastContainer />
+      <ToastContainer />
       <h1>Smart File Converter</h1>
 
       <Tabs mode={mode} setMode={setMode} />
@@ -122,17 +112,11 @@ const App = () => {
             dragOver={dragOver}
             setDragOver={setDragOver}
             onDrop={handleDrop}
-            onChange={(e) =>
-              e.target.files &&
-              onFilesSelected(e.target.files)
-            }
+            onChange={(e) => e.target.files && onFilesSelected(e.target.files)}
             inputRef={fileInputRef}
           />
 
-          <ImageList
-            files={files}
-            removeFile={removeFile}
-          />
+          <ImageList files={files} removeFile={removeFile} />
 
           <div className="controls">
             <label>Quality: {quality}</label>
@@ -141,9 +125,7 @@ const App = () => {
               min="10"
               max="100"
               value={quality}
-              onChange={(e) =>
-                setQuality(Number(e.target.value))
-              }
+              onChange={(e) => setQuality(Number(e.target.value))}
             />
           </div>
 
@@ -153,8 +135,7 @@ const App = () => {
         </>
       )}
 
-      {(mode === "pdf-to-word" ||
-        mode === "word-to-pdf") && (
+      {(mode === "pdf-to-word" || mode === "word-to-pdf") && (
         <>
           <SingleFileUpload
             singleFile={singleFile}
@@ -178,7 +159,7 @@ const App = () => {
 
       {loading && <ProgressBar progress={progress} />}
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;

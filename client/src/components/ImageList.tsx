@@ -1,4 +1,5 @@
 import "../App.css"
+import { MdDeleteForever } from "react-icons/md";
 interface Props {
   files: File[]
   removeFile: (i: number) => void
@@ -17,9 +18,9 @@ const ImageList = ({ files, removeFile }: Props) => {
             <img src={URL.createObjectURL(file)} alt={file.name}/>
             <div className="meta">
               <small>{file.name}</small>
-              <button onClick={() => removeFile(index)}>
-                Remove
-              </button>
+              {/* <button className="rbtn" > */}
+                <MdDeleteForever className="rbtn" onClick={() => removeFile(index)}/>
+              {/* </button> */}
             </div>
           </div>
         ))}
